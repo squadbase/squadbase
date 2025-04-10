@@ -1,0 +1,98 @@
+version: 2
+project_name: squad
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - windows
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+    ignore:
+      - goos: windows
+        goarch: arm64
+    ldflags:
+      - -s -w
+      - -X github.com/squadbase/squadbase/version.Version={{.Version}}
+      - -X github.com/squadbase/squadbase/version.BuildTime={{.Date}}
+      - -X github.com/squadbase/squadbase/version.GitCommit={{.Commit}}
+    binary: "{{ .ProjectName }}"
+
+archives:
+  - formats: ["tar.gz"]
+    name_template: >-
+      {{ .ProjectName }}_
+      {{- title .Version }}_
+      {{- .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "386" }}i386
+      {{- else }}{{ .Arch }}{{ end }}
+      {{- if .Arm }}v{{ .Arm }}{{ end }}
+    format_overrides:
+      - goos: windows
+        formats: ["zip"]
+    files:
+      - README*
+      - LICENSE*
+    wrap_in_directory: true
+
+checksum:
+  name_template: "checksums.txt"
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+      - "^ci:"
+      - "^chore:"
+      - Merge pull request
+      - Merge branch
+
+release:
+  prerelease: auto
+  draft: false
+
+brews:
+  - name: squad
+    repository:
+      owner: squadbase
+      name: squadbase
+    homepage: https://github.com/squadbase/squadbase
+    description: Squad CLI
+    license: MIT
+    test: |
+      system "#{bin}/squad --version"
+    install: |
+      bin.install "squad"
+    commit_author:
+      name: goreleaserbot
+      email: bot@goreleaser.com
+
+nfpms:
+  - package_name: squad
+    homepage: https://github.com/squadbase/squadbase
+    maintainer: Squadbase
+    description: Squad CLI
+    license: MIT
+    formats:
+      - deb
+      - rpm
+      - apk
+    dependencies:
+      - git
+    recommends:
+      - curl
+    bindir: /usr/bin
+    contents:
+      - src: ./LICENSE
+        dst: /usr/share/doc/squad/LICENSE
+    section: utils
