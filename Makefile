@@ -1,4 +1,4 @@
-APP := squad
+APP := squadbase
 
 .PHONY: all build test clean install uninstall crossbuild snapshot-release release-dry-run release
 

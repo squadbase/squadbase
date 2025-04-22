@@ -1,5 +1,5 @@
 version: 2
-project_name: squad
+project_name: squadbase
 
 before:
   hooks:
@@ -62,26 +62,26 @@ release:
   draft: false
 
 brews:
-  - name: squad
+  - name: squadbase
     repository:
       owner: squadbase
-      name: squadbase
+      name: homebrew-squadbase
     homepage: https://github.com/squadbase/squadbase
-    description: Squad CLI
+    description: Squadbase CLI
     license: MIT
     test: |
-      system "#{bin}/squad --version"
+      system "#{bin}/squadbase --version"
     install: |
-      bin.install "squad"
+      bin.install "squadbase"
     commit_author:
       name: goreleaserbot
       email: bot@goreleaser.com
 
 nfpms:
-  - package_name: squad
+  - package_name: squadbase
     homepage: https://github.com/squadbase/squadbase
     maintainer: Squadbase
-    description: Squad CLI
+    description: Squadbase CLI
     license: MIT
     formats:
       - deb
@@ -94,5 +94,5 @@ nfpms:
     bindir: /usr/bin
     contents:
       - src: ./LICENSE
-        dst: /usr/share/doc/squad/LICENSE
+        dst: /usr/share/doc/squadbase/LICENSE
     section: utils
