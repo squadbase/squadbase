@@ -1,6 +1,7 @@
 # General
 .DS_Store
 .env
+.env.goreleaser
 
 # Binaries for programs and plugins
 *.exe

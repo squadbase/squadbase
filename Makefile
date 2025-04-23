@@ -61,9 +61,10 @@ snapshot-release:
 # Dry run a release with goreleaser
 release-dry-run:
 	@echo "Dry run release process..."
-	goreleaser release --clean --skip-publish --snapshot --config .goreleaser.yml
+	goreleaser release --clean --skip=publish --snapshot --config .goreleaser.yml
 
 # Create a release with goreleaser (requires a valid git tag)
 release:
 	@echo "Creating a release..."
+	@set -o allexport; source .env.goreleaser; set +o allexport; \
 	goreleaser release --clean --config .goreleaser.yml
