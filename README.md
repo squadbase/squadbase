@@ -7,7 +7,8 @@
 `linux`
 
 ```shell
-$ brew install squadbase/homebrew-squadbase/squadbase
+$ brew tap squadbase/homebrew-squadbase
+$ brew install squadbase
 ```
 
 `windows`
