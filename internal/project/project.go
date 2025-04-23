@@ -137,7 +137,7 @@ build:
     runtime: %s%s%s
     framework: %s
     package_manager: %s%s
-	# entrypoint: .
+    # entrypoint: .
     # context: .
     # build_args:
     #   - ARG_NAME=value
@@ -151,7 +151,7 @@ deployment:
     #     region: ap-northeast-1
     #     memory: 1024
     #     timeout: 30
-	#     provisioned_concurrency: 0
+    #     provisioned_concurrency: 0
     #     ephemeral_storage: 512MB
     # gcp:
     #     region: us-central1
@@ -159,8 +159,8 @@ deployment:
     #     cpu: 1
     #     concurrency: 80
     #     timeout: 60
-	#     min_instances: 0
-	#     ephemeral_storage: 100Mi
+    #     min_instances: 0
+    #     ephemeral_storage: 100Mi
 `,
 		language, languageVersion, comment,
 		templateName,
