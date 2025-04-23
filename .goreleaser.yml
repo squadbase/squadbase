@@ -8,43 +8,30 @@ before:
 builds:
   - env:
       - CGO_ENABLED=0
-    goos:
-      - linux
-      - windows
-      - darwin
-    goarch:
-      - amd64
-      - arm64
+    goos: [linux, windows, darwin]
+    goarch: [amd64, arm64]
     ignore:
       - goos: windows
         goarch: arm64
     ldflags:
       - -s -w
-      - -X github.com/squadbase/squadbase/version.Version={{.Version}}
-      - -X github.com/squadbase/squadbase/version.BuildTime={{.Date}}
-      - -X github.com/squadbase/squadbase/version.GitCommit={{.Commit}}
+      - -X github.com/squadbase/squadbase/version.Version={{ .Version }}
+      - -X github.com/squadbase/squadbase/version.BuildTime={{ .Date }}
+      - -X github.com/squadbase/squadbase/version.GitCommit={{ .Commit }}
     binary: "{{ .ProjectName }}"
 
 archives:
   - formats: ["tar.gz"]
     name_template: >-
-      {{ .ProjectName }}_
-      {{- title .Version }}_
-      {{- .Os }}_
-      {{- if eq .Arch "amd64" }}x86_64
-      {{- else if eq .Arch "386" }}i386
-      {{- else }}{{ .Arch }}{{ end }}
-      {{- if .Arm }}v{{ .Arm }}{{ end }}
+      {{ .ProjectName }}_{{- title .Version }}_{{- .Os }}_{{- if eq .Arch "amd64" }}x86_64{{- else if eq .Arch "386" }}i386{{- else }}{{ .Arch }}{{ end }}{{- if .Arm }}v{{ .Arm }}{{ end }}
     format_overrides:
       - goos: windows
         formats: ["zip"]
-    files:
-      - README*
-      - LICENSE*
-    wrap_in_directory: true
+    files: [README*, LICENSE*]
+    wrap_in_directory: false
 
 checksum:
-  name_template: "checksums.txt"
+  name_template: checksums.txt
 
 changelog:
   sort: asc
@@ -54,8 +41,8 @@ changelog:
       - "^test:"
       - "^ci:"
       - "^chore:"
-      - Merge pull request
-      - Merge branch
+      - "Merge pull request"
+      - "Merge branch"
 
 release:
   prerelease: auto
@@ -68,11 +55,23 @@ brews:
       name: homebrew-squadbase
     homepage: https://github.com/squadbase/squadbase
     description: Squadbase CLI
-    license: MIT
+    license: Apache License 2.0
     test: |
       system "#{bin}/squadbase --version"
     install: |
       bin.install "squadbase"
+    commit_author:
+      name: goreleaserbot
+      email: bot@goreleaser.com
+
+scoops:
+  - name: squadbase
+    repository:
+      owner: squadbase
+      name: scoop-bucket
+    homepage: https://github.com/squadbase/squadbase
+    description: Squadbase CLI
+    license: Apache License 2.0
     commit_author:
       name: goreleaserbot
       email: bot@goreleaser.com
@@ -82,15 +81,10 @@ nfpms:
     homepage: https://github.com/squadbase/squadbase
     maintainer: Squadbase
     description: Squadbase CLI
-    license: MIT
-    formats:
-      - deb
-      - rpm
-      - apk
-    dependencies:
-      - git
-    recommends:
-      - curl
+    license: Apache License 2.0
+    formats: [deb, rpm, apk]
+    dependencies: [git]
+    recommends: [curl]
     bindir: /usr/bin
     contents:
       - src: ./LICENSE
