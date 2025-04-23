@@ -137,6 +137,7 @@ build:
     runtime: %s%s%s
     framework: %s
     package_manager: %s%s
+	# entrypoint: .
     # context: .
     # build_args:
     #   - ARG_NAME=value
@@ -147,16 +148,19 @@ deployment:
     provider: %s
     # These settings are used only when you want to customize the deployment settings
     # aws:
-    #     region: us-west-2
+    #     region: ap-northeast-1
     #     memory: 1024
     #     timeout: 30
-    #     concurrency: 100
+	#     provisioned_concurrency: 0
+    #     ephemeral_storage: 512MB
     # gcp:
     #     region: us-central1
     #     memory: 1024
     #     cpu: 1
     #     concurrency: 80
     #     timeout: 60
+	#     min_instances: 0
+	#     ephemeral_storage: 100Mi
 `,
 		language, languageVersion, comment,
 		templateName,
