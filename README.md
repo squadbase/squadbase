@@ -8,7 +8,7 @@
 
 ```shell
 $ brew tap squadbase/homebrew-squadbase
-$ brew install squadbase
+$ brew install squad
 ```
 
 `windows`
@@ -22,4 +22,30 @@ $ scoop install squadbase
 
 ```shell
 $ go install github.com/squadbase/squadbase@latest
+```
+
+## Commands
+
+`version`
+
+```shell
+$ squad --version
+```
+
+`help`
+
+```shell
+$ squad help
+```
+
+`init`
+
+```shell
+$ squad init
+```
+
+`create`
+
+```shell
+$ squad create
 ```
