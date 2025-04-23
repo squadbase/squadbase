@@ -14,8 +14,8 @@ $ brew install squad
 `windows`
 
 ```shell
-$ scoop bucket add squadbase https://github.com/squadbase/scoop-bucket.git
-$ scoop install squadbase
+$ scoop bucket add squad https://github.com/squadbase/scoop-bucket.git
+$ scoop install squad
 ```
 
 `others`

@@ -130,7 +130,8 @@ func CreateSquadbaseYml(
 		}
 	}
 
-	content := fmt.Sprintf(`# Build Settings
+	content := fmt.Sprintf(`version: '1'
+# Build Settings
 build:
     # These settings are required when use_custom_dockerfile is false
     # They define the environment in which the project will be built
