@@ -4,6 +4,8 @@ set -e
 GITHUB_REPO="squadbase/squadbase"
 INSTALL_DIR="${HOME}/bin"
 BINARY_NAME="squad"
+# Get version from environment variable, first argument, or leave empty to fetch latest
+SPECIFIED_VERSION="${VERSION:-$1}"
 
 # Detect system information
 detect_os() {
@@ -41,16 +43,22 @@ detect_arch() {
 
 # Get latest release
 get_latest_release() {
-  curl --silent "https://api.github.com/repos/${GITHUB_REPO}/releases/latest" | 
-  grep '"tag_name":' | 
-  sed -E 's/.*"([^"]+)".*/\1/'
+  local result
+  result=$(curl --silent "https://api.github.com/repos/${GITHUB_REPO}/releases/latest" 2>/dev/null || echo '{"tag_name":"v0.1.0"}')
+  echo "$result" | grep -o '"tag_name":"[^"]*"' | sed -E 's/"tag_name":"(.*)"/\1/' || echo "v0.1.0"
 }
 
 # Main process
 main() {
   OS=$(detect_os)
   ARCH=$(detect_arch)
-  VERSION=$(get_latest_release)
+  
+  # Use specified version if provided, otherwise get the latest release
+  if [ -n "$SPECIFIED_VERSION" ]; then
+    VERSION="$SPECIFIED_VERSION"
+  else
+    VERSION=$(get_latest_release)
+  fi
 
   # Display version
   echo "Installing version: ${VERSION}"
