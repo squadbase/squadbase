@@ -22,15 +22,12 @@ builds:
 
 archives:
   - formats: ["tar.gz"]
-    name_template: >
-      {{ .ProjectName }}_{{ replace .Version "v" "" }}_{{ .Os }}_{{ if eq .Arch "amd64" }}x86_64{{ else if eq .Arch "386" }}i386{{ else }}{{ .Arch }}{{ end }}
+    name_template: >-
+      {{ .ProjectName }}_{{- title .Version }}_{{- .Os }}_{{- if eq .Arch "amd64" }}x86_64{{- else if eq .Arch "386" }}i386{{- else }}{{ .Arch }}{{ end }}{{- if .Arm }}v{{ .Arm }}{{ end }}
     format_overrides:
       - goos: windows
         formats: ["zip"]
-    files:
-      - LICENSE*
-      - README*
-      - ./scripts/install.sh
+    files: [README*, LICENSE*]
     wrap_in_directory: false
 
 checksum:
@@ -93,4 +90,3 @@ nfpms:
       - src: ./LICENSE
         dst: /usr/share/doc/squad/LICENSE
     section: utils
-
