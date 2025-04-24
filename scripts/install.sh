@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-
 set -euo pipefail
 
 REPO="squadbase/squadbase"
@@ -9,68 +8,46 @@ APP="squad"
 : "${VERSION:=}"
 : "${BINDIR:=/usr/local/bin}"
 
-# os / arch
 detect_os()   { uname -s | tr '[:upper:]' '[:lower:]'; }
 detect_arch() {
   case "$(uname -m)" in
-    x86_64|amd64)   echo "x86_64"  ;;
-    arm64|aarch64)  echo "arm64"  ;;
-    armv7*)         echo "armv7"  ;;
+    x86_64|amd64)  echo "x86_64" ;;
+    arm64|aarch64) echo "arm64"  ;;
+    armv7*)        echo "armv7"  ;;
     *) echo "unsupported arch: $(uname -m)"; exit 1 ;;
   esac
 }
-OS="$(detect_os)"; ARCH="$(detect_arch)"
+OS=$(detect_os); ARCH=$(detect_arch)
 
-# version
+# -------- version --------
 if [[ -z "$VERSION" || "$VERSION" == "latest" ]]; then
-  VERSION="$(curl -fsSL "https://api.github.com/repos/${REPO}/releases/latest" \
-              | grep -m1 '"tag_name":' | cut -d '"' -f4)"
+  VERSION=$(curl -fsSL "https://api.github.com/repos/${REPO}/releases/latest" \
+            | grep -m1 '"tag_name":' | cut -d '"' -f4)
   [[ -z "$VERSION" ]] && { echo "No release found"; exit 1; }
 fi
 
-VERSION_NO_V="${VERSION#v}"
-
-# url
-if [[ "$OS" == "windows" ]]; then
-  FILE="${APP}_${VERSION_NO_V}_${OS}_${ARCH}.zip"
-else
-  FILE="${APP}_${VERSION_NO_V}_${OS}_${ARCH}.tar.gz"
-fi
+EXT=$([[ "$OS" == "windows" ]] && echo "zip" || echo "tar.gz")
+FILE="${APP}_${VERSION}_${OS}_${ARCH}.${EXT}"
 URL="${REPO_URL}/${VERSION}/${FILE}"
 SUM_URL="${REPO_URL}/${VERSION}/checksums.txt"
 
-# download & checksum
-TMPDIR="$(mktemp -d)"
-trap 'rm -rf "$TMPDIR"' EXIT
+echo "▶︎ URL: $URL"
 
-echo "➜ Downloading $FILE …"
-curl -fsSL "$URL" -o "$TMPDIR/$FILE"
+TMP=$(mktemp -d); trap 'rm -rf "$TMP"' EXIT
+curl -fsSL "$URL" -o "$TMP/$FILE"           || { echo "❌ 404 ($FILE)"; exit 1; }
+curl -fsSL "$SUM_URL" -o "$TMP/SUMS"        || { echo "❌ checksums.txt 取得失敗"; exit 1; }
 
-echo "➜ Verifying checksum …"
-curl -fsSL "$SUM_URL" -o "$TMPDIR/checksums.txt"
+# -------- checksum --------
+hash_cmd() { command -v sha256sum >/dev/null && sha256sum "$1" || shasum -a 256 "$1"; }
+EXPECTED=$(grep "$FILE$" "$TMP/SUMS" | awk '{print $1}')
+ACTUAL=$(hash_cmd "$TMP/$FILE" | awk '{print $1}')
+[[ "$EXPECTED" == "$ACTUAL" ]] || { echo "❌ checksum mismatch"; exit 1; }
 
-checksum() {
-  if command -v sha256sum >/dev/null 2>&1; then
-    sha256sum "$1" | awk '{print $1}'
-  else
-    shasum -a 256 "$1" | awk '{print $1}'
-  fi
-}
-
-EXPECTED="$(grep "$FILE\$" "$TMPDIR/checksums.txt" | awk '{print $1}')"
-ACTUAL="$(checksum "$TMPDIR/$FILE")"
-[[ "$EXPECTED" == "$ACTUAL" ]] || { echo "❌  checksum mismatch"; exit 1; }
-
-# install
-echo "➜ Extracting"
+# -------- extract & install --------
 if [[ "$OS" == "windows" ]]; then
-  unzip -q "$TMPDIR/$FILE" -d "$TMPDIR" || { echo "❌ Failed to extract zip file"; exit 1; }
+  unzip -q "$TMP/$FILE" -d "$TMP"
 else
-  tar -C "$TMPDIR" -xzf "$TMPDIR/$FILE" || { echo "❌ Failed to extract tar.gz file"; exit 1; }
+  tar -C "$TMP" -xzf "$TMP/$FILE"
 fi
-
-echo "➜ Installing to $BINDIR"
-install -m 755 "$TMPDIR/$APP" "$BINDIR/$APP"
-
-echo "✅  Installed $APP $VERSION → $BINDIR/$APP"
-echo "ℹ︎  Run  '$APP --help'  to get started."
+install -m 755 "$TMP/$APP" "$BINDIR/$APP"
+echo "✅ Installed $APP $VERSION → $BINDIR/$APP"
