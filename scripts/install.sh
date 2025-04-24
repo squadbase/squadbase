@@ -26,8 +26,9 @@ if [[ -z "$VERSION" || "$VERSION" == "latest" ]]; then
   [[ -z "$VERSION" ]] && { echo "No release found"; exit 1; }
 fi
 
+VERSION_NO_V="${VERSION#v}"
 EXT=$([[ "$OS" == "windows" ]] && echo "zip" || echo "tar.gz")
-FILE="${APP}_${VERSION}_${OS}_${ARCH}.${EXT}"
+FILE="${APP}_${VERSION_NO_V}_${OS}_${ARCH}.${EXT}"
 URL="${REPO_URL}/${VERSION}/${FILE}"
 SUM_URL="${REPO_URL}/${VERSION}/checksums.txt"
 
@@ -51,3 +52,4 @@ else
 fi
 install -m 755 "$TMP/$APP" "$BINDIR/$APP"
 echo "✅ Installed $APP $VERSION → $BINDIR/$APP"
+
