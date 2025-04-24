@@ -65,7 +65,7 @@ func CreateProject(projectName string, templateName string, config *Config) erro
 				err = createRequirementsTxt(projectName, templateName)
 			}
 
-			if !isCommandAvailable("npm") {
+			if isCommandAvailable("npm") {
 				currentDir, _ := os.Getwd()
 				err = os.Chdir(projectName)
 				if err == nil {
