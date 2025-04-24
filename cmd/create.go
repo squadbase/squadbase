@@ -133,7 +133,7 @@ func createAction(c *cli.Context) error {
 		AuthorEmail: authorEmail,
 	}
 
-	if templateName == "squadbase" || templateName == "streamlit" {
+	if templateName == "morph" || templateName == "streamlit" {
 		ui.PrintStep(3, 6, "Python Configuration")
 		fmt.Println(ui.GetAccentText("\n🐍 Python Configuration"))
 

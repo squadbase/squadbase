@@ -55,7 +55,7 @@ func ShowHelp(c *cli.Context) error {
 	fmt.Fprintln(w, "")
 
 	templatesInfo := make(map[string]string)
-	templatesInfo["squadbase"] = "A Squadbase-based project template"
+	templatesInfo["morph"] = "A Squadbase-based project template"
 	templatesInfo["nextjs"] = "A Next.js project template"
 	templatesInfo["streamlit"] = "A Streamlit project template"
 

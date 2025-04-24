@@ -55,7 +55,7 @@ func CreateProject(projectName string, templateName string, config *Config) erro
 
 	if config != nil {
 		switch templateName {
-		case "squadbase":
+		case "morph":
 			switch config.PackageManager {
 			case "poetry":
 				err = createPoetryPyprojectToml(projectName, templateName, config.AuthorName, config.AuthorEmail)
@@ -65,7 +65,7 @@ func CreateProject(projectName string, templateName string, config *Config) erro
 				err = createRequirementsTxt(projectName, templateName)
 			}
 
-			if !isCommandAvailable("npm") {
+			if isCommandAvailable("npm") {
 				currentDir, _ := os.Getwd()
 				err = os.Chdir(projectName)
 				if err == nil {
@@ -287,7 +287,7 @@ func createPoetryPyprojectToml(projectPath, templateName, authorName, authorEmai
 	var dependencies []string
 	var packages string
 
-	if templateName == "squadbase" {
+	if templateName == "morph" {
 		morphPackageVersion := getLatestPackageVersion("morph-data")
 		morphPackage := "morph-data"
 		if morphPackageVersion != "" {
@@ -335,7 +335,7 @@ func createUvPyprojectToml(projectPath, templateName, authorName, authorEmail st
 	var dependencies []string
 	var packages string
 
-	if templateName == "squadbase" {
+	if templateName == "morph" {
 		morphPackageVersion := getLatestPackageVersion("morph-data")
 		morphPackage := "morph-data"
 		if morphPackageVersion != "" {
@@ -388,7 +388,7 @@ allow-direct-references = true
 func createRequirementsTxt(projectPath, templateName string) error {
 	var dependencies []string
 
-	if templateName == "squadbase" {
+	if templateName == "morph" {
 		morphPackageVersion := getLatestPackageVersion("morph-data")
 		morphPackage := "morph-data"
 		if morphPackageVersion != "" {

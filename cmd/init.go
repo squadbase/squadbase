@@ -102,7 +102,7 @@ func initAction(c *cli.Context) error {
 	var packageManager string
 	var deploymentProvider string
 
-	if templateName == "squadbase" || templateName == "streamlit" {
+	if templateName == "morph" || templateName == "streamlit" {
 		fmt.Printf("\n%s %s\n", cyan("Python Configuration"), "🐍")
 
 		currentPyVersion := project.GetCurrentPythonVersion()
@@ -188,7 +188,7 @@ func initAction(c *cli.Context) error {
 	fmt.Printf("  %-20s %s\n", "Framework:", green(templateName))
 
 	if languageVersion != "" {
-		if templateName == "squadbase" || templateName == "streamlit" {
+		if templateName == "morph" || templateName == "streamlit" {
 			fmt.Printf("  %-20s %s\n", "Python Version:", green(languageVersion))
 		} else {
 			fmt.Printf("  %-20s %s\n", "Node.js Version:", green(languageVersion))
