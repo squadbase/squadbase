@@ -11,7 +11,7 @@ APP="squad"
 detect_os()   { uname -s | tr '[:upper:]' '[:lower:]'; }
 detect_arch() {
   case "$(uname -m)" in
-    x86_64|amd64)  echo "x86_64" ;;
+    x86_64|amd64)  echo "x86_64" ;;   # GoReleaser と同じ表記
     arm64|aarch64) echo "arm64"  ;;
     armv7*)        echo "armv7"  ;;
     *) echo "unsupported arch: $(uname -m)"; exit 1 ;;
