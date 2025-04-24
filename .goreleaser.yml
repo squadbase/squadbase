@@ -27,7 +27,10 @@ archives:
     format_overrides:
       - goos: windows
         formats: ["zip"]
-    files: [README*, LICENSE*]
+    files:
+      - LICENSE*
+      - README*
+      - ./scripts/install.sh
     wrap_in_directory: false
 
 checksum:
