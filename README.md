@@ -24,10 +24,6 @@ $ scoop install squad
 $ go install github.com/squadbase/squadbase@latest
 ```
 
-```bash
-$ curl -fsSL https://raw.githubusercontent.com/squadbase/squadbase/main/scripts/install.sh | bash
-```
-
 ## Commands
 
 `version`

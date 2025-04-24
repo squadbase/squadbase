@@ -12,59 +12,59 @@ all: clean build test
 
 # Build the binary
 build:
-	@echo "Building ${APP} CLI..."
-	go build $(LDFLAGS) -o bin/${APP}
+    @echo "Building ${APP} CLI..."
+    go build $(LDFLAGS) -o bin/${APP}
 
 # Run tests
 test:
-	@echo "Running tests..."
-	go test -v ./test/...
+    @echo "Running tests..."
+    go test -v ./test/...
 
 # Clean build artifacts
 clean:
-	@echo "Cleaning build artifacts..."
-	rm -rf bin/ dist/
-	go clean
+    @echo "Cleaning build artifacts..."
+    rm -rf bin/ dist/
+    go clean
 
 # Install the binary to ~/bin and add to PATH if needed
 install: build
-	@echo "Installing ${APP} CLI..."
-	mkdir -p $(HOME)/bin
-	install -m 755 bin/${APP} $(HOME)/bin/
-	@if ! echo $$PATH | grep -q "$(HOME)/bin"; then \
-		echo ""; \
-		echo "NOTE: $(HOME)/bin is not in your PATH."; \
-		echo "Add the following line to your .profile, .bash_profile, or .zshrc:"; \
-		echo "export PATH=\"\$$HOME/bin:\$$PATH\""; \
-		echo "Then restart your terminal or run: source ~/.$(shell basename $$SHELL)rc"; \
-	fi
+    @echo "Installing ${APP} CLI..."
+    mkdir -p $(HOME)/bin
+    install -m 755 bin/${APP} $(HOME)/bin/
+    @if ! echo $$PATH | grep -q "$(HOME)/bin"; then \
+        echo ""; \
+        echo "NOTE: $(HOME)/bin is not in your PATH."; \
+        echo "Add the following line to your .profile, .bash_profile, or .zshrc:"; \
+        echo "export PATH=\"\$$HOME/bin:\$$PATH\""; \
+        echo "Then restart your terminal or run: source ~/.$(shell basename $$SHELL)rc"; \
+    fi
 
 # Uninstall the binary from ~/bin
 uninstall:
-	@echo "Uninstalling ${APP} CLI..."
-	rm -f $(HOME)/bin/${APP}
-	@echo "${APP} CLI has been removed."
+    @echo "Uninstalling ${APP} CLI..."
+    rm -f $(HOME)/bin/${APP}
+    @echo "${APP} CLI has been removed."
 
 # Cross-compile for different platforms
 crossbuild:
-	@echo "Cross-compiling for various platforms..."
-	GOOS=linux GOARCH=amd64 go build $(LDFLAGS) -o bin/${APP}-linux-amd64 
-	GOOS=darwin GOARCH=amd64 go build $(LDFLAGS) -o bin/${APP}-darwin-amd64 
-	GOOS=darwin GOARCH=arm64 go build $(LDFLAGS) -o bin/${APP}-darwin-arm64 
-	GOOS=windows GOARCH=amd64 go build $(LDFLAGS) -o bin/${APP}-windows-amd64.exe 
+    @echo "Cross-compiling for various platforms..."
+    GOOS=linux GOARCH=amd64 go build $(LDFLAGS) -o bin/${APP}-linux-amd64 
+    GOOS=darwin GOARCH=amd64 go build $(LDFLAGS) -o bin/${APP}-darwin-amd64 
+    GOOS=darwin GOARCH=arm64 go build $(LDFLAGS) -o bin/${APP}-darwin-arm64 
+    GOOS=windows GOARCH=amd64 go build $(LDFLAGS) -o bin/${APP}-windows-amd64.exe 
 
 # Create a development/test build with goreleaser
 snapshot-release:
-	@echo "Creating a snapshot release..."
-	goreleaser release --clean --snapshot --config .goreleaser.yml
+    @echo "Creating a snapshot release..."
+    goreleaser build --clean --snapshot --config .goreleaser.yml
 
 # Dry run a release with goreleaser
 release-dry-run:
-	@echo "Dry run release process..."
-	goreleaser release --clean --skip=publish --snapshot --config .goreleaser.yml
+    @echo "Dry run release process..."
+    goreleaser release --clean --skip=publish --snapshot --config .goreleaser.yml
 
 # Create a release with goreleaser (requires a valid git tag)
 release:
-	@echo "Creating a release..."
-	@set -o allexport; source .env.goreleaser; set +o allexport; \
-	goreleaser release --clean --config .goreleaser.yml
+    @echo "Creating a release..."
+    @set -o allexport; source .env.goreleaser; set +o allexport; \
+    goreleaser release --clean --config .goreleaser.yml
