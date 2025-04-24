@@ -56,7 +56,7 @@ crossbuild:
 # Create a development/test build with goreleaser
 snapshot-release:
 	@echo "Creating a snapshot release..."
-	goreleaser build --clean --snapshot --config .goreleaser.yml
+	goreleaser release --clean --snapshot --config .goreleaser.yml
 
 # Dry run a release with goreleaser
 release-dry-run:
