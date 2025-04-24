@@ -4,21 +4,27 @@
 
 **Install the CLI**
 
-`linux`
+`brew (macOS/Linux)`
 
 ```shell
 $ brew tap squadbase/homebrew-squadbase
 $ brew install squad
 ```
 
-`windows`
+`scoop (Windows)`
 
 ```shell
 $ scoop bucket add squad https://github.com/squadbase/scoop-bucket.git
 $ scoop install squad
 ```
 
-`others`
+`curl (Any Platform)`
+
+```shell
+$ curl -fsSL https://raw.githubusercontent.com/squadbase/squadbase/main/scripts/install.sh | sh
+```
+
+`go install (Requires Go)`
 
 ```shell
 $ go install github.com/squadbase/squadbase@latest

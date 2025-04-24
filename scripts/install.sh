@@ -1,55 +1,116 @@
-#!/usr/bin/env bash
-set -euo pipefail
+#!/bin/sh
+set -e
 
-REPO="squadbase/squadbase"
-APP="squad"
+GITHUB_REPO="squadbase/squadbase"
+INSTALL_DIR="${HOME}/bin"
+BINARY_NAME="squad"
 
-: "${REPO_URL:=https://github.com/${REPO}/releases/download}"
-: "${VERSION:=}"
-: "${BINDIR:=/usr/local/bin}"
-
-detect_os()   { uname -s | tr '[:upper:]' '[:lower:]'; }
-detect_arch() {
-  case "$(uname -m)" in
-    x86_64|amd64)  echo "x86_64" ;;   # GoReleaser と同じ表記
-    arm64|aarch64) echo "arm64"  ;;
-    armv7*)        echo "armv7"  ;;
-    *) echo "unsupported arch: $(uname -m)"; exit 1 ;;
+# Detect system information
+detect_os() {
+  case "$(uname -s)" in
+    Darwin)
+      echo "darwin"
+      ;;
+    Linux)
+      echo "linux"
+      ;;
+    CYGWIN*|MINGW*|MSYS*)
+      echo "windows"
+      ;;
+    *)
+      echo "Unsupported system: $(uname -s)" >&2
+      exit 1
+      ;;
   esac
 }
-OS=$(detect_os); ARCH=$(detect_arch)
 
-# -------- version --------
-if [[ -z "$VERSION" || "$VERSION" == "latest" ]]; then
-  VERSION=$(curl -fsSL "https://api.github.com/repos/${REPO}/releases/latest" \
-            | grep -m1 '"tag_name":' | cut -d '"' -f4)
-  [[ -z "$VERSION" ]] && { echo "No release found"; exit 1; }
-fi
+detect_arch() {
+  case "$(uname -m)" in
+    x86_64|amd64)
+      echo "x86_64"
+      ;;
+    arm64|aarch64)
+      echo "arm64"
+      ;;
+    *)
+      echo "Unsupported architecture: $(uname -m)" >&2
+      exit 1
+      ;;
+  esac
+}
 
-VERSION_NO_V="${VERSION#v}"
-EXT=$([[ "$OS" == "windows" ]] && echo "zip" || echo "tar.gz")
-FILE="${APP}_${VERSION_NO_V}_${OS}_${ARCH}.${EXT}"
-URL="${REPO_URL}/${VERSION}/${FILE}"
-SUM_URL="${REPO_URL}/${VERSION}/checksums.txt"
+# Get latest release
+get_latest_release() {
+  curl --silent "https://api.github.com/repos/${GITHUB_REPO}/releases/latest" | 
+  grep '"tag_name":' | 
+  sed -E 's/.*"([^"]+)".*/\1/'
+}
 
-echo "▶︎ URL: $URL"
+# Main process
+main() {
+  OS=$(detect_os)
+  ARCH=$(detect_arch)
+  VERSION=$(get_latest_release)
 
-TMP=$(mktemp -d); trap 'rm -rf "$TMP"' EXIT
-curl -fsSL "$URL" -o "$TMP/$FILE"           || { echo "❌ 404 ($FILE)"; exit 1; }
-curl -fsSL "$SUM_URL" -o "$TMP/SUMS"        || { echo "❌ checksums.txt 取得失敗"; exit 1; }
+  # Display version
+  echo "Installing version: ${VERSION}"
 
-# -------- checksum --------
-hash_cmd() { command -v sha256sum >/dev/null && sha256sum "$1" || shasum -a 256 "$1"; }
-EXPECTED=$(grep "$FILE$" "$TMP/SUMS" | awk '{print $1}')
-ACTUAL=$(hash_cmd "$TMP/$FILE" | awk '{print $1}')
-[[ "$EXPECTED" == "$ACTUAL" ]] || { echo "❌ checksum mismatch"; exit 1; }
+  # Create installation directory
+  mkdir -p "${INSTALL_DIR}"
 
-# -------- extract & install --------
-if [[ "$OS" == "windows" ]]; then
-  unzip -q "$TMP/$FILE" -d "$TMP"
-else
-  tar -C "$TMP" -xzf "$TMP/$FILE"
-fi
-install -m 755 "$TMP/$APP" "$BINDIR/$APP"
-echo "✅ Installed $APP $VERSION → $BINDIR/$APP"
+  # Set extension and archive type for Windows
+  if [ "$OS" = "windows" ]; then
+    ARCHIVE_EXT="zip"
+    BINARY_EXT=".exe"
+  else
+    ARCHIVE_EXT="tar.gz"
+    BINARY_EXT=""
+  fi
 
+  # Build archive name (following goreleaser naming convention)
+  ARCHIVE_NAME="${BINARY_NAME}_${VERSION#v}_${OS}_${ARCH}${BINARY_EXT}"
+  DOWNLOAD_URL="https://github.com/${GITHUB_REPO}/releases/download/${VERSION}/${ARCHIVE_NAME}.${ARCHIVE_EXT}"
+
+  echo "Downloading: ${DOWNLOAD_URL}"
+  
+  # Create temporary directory
+  TMP_DIR=$(mktemp -d)
+  TMP_FILE="${TMP_DIR}/${ARCHIVE_NAME}.${ARCHIVE_EXT}"
+  
+  # Download
+  curl -L -o "${TMP_FILE}" "${DOWNLOAD_URL}"
+  
+  # Extract
+  if [ "$OS" = "windows" ]; then
+    unzip -o "${TMP_FILE}" -d "${TMP_DIR}"
+  else
+    tar -xzf "${TMP_FILE}" -C "${TMP_DIR}"
+  fi
+  
+  # Install binary
+  BINARY_PATH="${TMP_DIR}/${BINARY_NAME}${BINARY_EXT}"
+  if [ -f "${BINARY_PATH}" ]; then
+    install -m 755 "${BINARY_PATH}" "${INSTALL_DIR}/${BINARY_NAME}${BINARY_EXT}"
+    echo "Installed ${BINARY_NAME} to ${INSTALL_DIR}"
+  else
+    echo "Binary not found" >&2
+    exit 1
+  fi
+  
+  # Clean up temporary files
+  rm -rf "${TMP_DIR}"
+  
+  # Check if installation directory is in PATH
+  if ! echo "$PATH" | grep -q "${INSTALL_DIR}"; then
+    echo ""
+    echo "NOTE: ${INSTALL_DIR} is not in your PATH"
+    echo "Add the following line to your .profile, .bash_profile, or .zshrc:"
+    echo "export PATH=\"\$HOME/bin:\$PATH\""
+    echo "Then restart your terminal or run: source ~/.$(basename "$SHELL")rc"
+  fi
+  
+  echo ""
+  echo "Installation complete! Verify with '${BINARY_NAME} --version'"
+}
+
+main
